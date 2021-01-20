@@ -13,7 +13,6 @@ import android.view.View
 import android.widget.Toast
 import com.raag.retrofit.vo.Resource
 import androidx.activity.viewModels
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.raag.retrofit.adapter.Adapter
 import com.raag.retrofit.data.model.DataSource

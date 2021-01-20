@@ -10,7 +10,6 @@ package com.raag.retrofit.ui
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import android.widget.SearchView
 import android.widget.Toast
 import com.raag.retrofit.vo.Resource
 import androidx.activity.viewModels
@@ -36,12 +35,10 @@ class MainActivity : AppCompatActivity() {
 
         setupViewModel()
         setupAdapter()
-
-
     }
 
     private fun setupAdapter() {
-        viewModel.fetchCodesList.observe(this@MainActivity, Observer { result ->
+        viewModel.fetchCodesList.observe(this@MainActivity, { result ->
             when (result) {
                 is Resource.Loading -> {
                     binding.loading.visibility = View.VISIBLE

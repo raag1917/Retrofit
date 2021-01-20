@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Retrofit</string>
-    <string name="c_digo_telef_nico">Código Telefónico:</string>
-    <string name="zona">Zona horaria:</string>
+    <string name="c_digo_telef_nico">Código:</string>
+    <string name="zona">Población:</string>
     <string name="pa_s">País:</string>
     <string name="buscar">Buscar</string>
 </resources>

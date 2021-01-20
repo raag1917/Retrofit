@@ -9,64 +9,60 @@ package com.raag.retrofit.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log.d
+import android.view.View
+import android.widget.SearchView
+import android.widget.Toast
+import com.raag.retrofit.vo.Resource
+import androidx.activity.viewModels
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.raag.retrofit.adapter.Adapter
-import com.raag.retrofit.data.Codes
+import com.raag.retrofit.data.model.DataSource
 import com.raag.retrofit.databinding.ActivityMainBinding
-import com.raag.retrofit.interfaces.CodesAPI
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import com.raag.retrofit.domain.RepoImpl
+import com.raag.retrofit.ui.viewmodel.MainViewModel
+import com.raag.retrofit.ui.viewmodel.VMFactory
 
 
-class MainActivity: AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
 
-    companion object{
-        const val BASE_URL = "https://restcountries.eu/rest/v2/"
-    }
-
-    lateinit var adapter: Adapter
-    lateinit var linearLayout: LinearLayoutManager
     private lateinit var binding: ActivityMainBinding
+    val viewModel by viewModels<MainViewModel> { VMFactory(RepoImpl(DataSource())) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.recyclerView.setHasFixedSize(true)
-        linearLayout = LinearLayoutManager(this)
-        binding.recyclerView.layoutManager = linearLayout
+        setupViewModel()
+        setupAdapter()
 
-        getData()
 
     }
 
-    private fun getData() {
-        val retrofitBuilder = Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(CodesAPI::class.java)
-
-        val retrofit = retrofitBuilder.getData()
-
-        retrofit.enqueue(object : Callback<List<Codes>> {
-
-            override fun onResponse(call: Call<List<Codes>>, response: Response<List<Codes>>) {
-                val list = response.body()!!
-                adapter = Adapter(this@MainActivity, list)
-                adapter.notifyDataSetChanged()
-                binding.recyclerView.adapter = adapter
-            }
-
-            override fun onFailure(call: Call<List<Codes>>, t: Throwable) {
-                d("Message Error", "Error cargando datos" + t.message)
+    private fun setupAdapter() {
+        viewModel.fetchCodesList.observe(this@MainActivity, Observer { result ->
+            when (result) {
+                is Resource.Loading -> {
+                    binding.loading.visibility = View.VISIBLE
+                }
+                is Resource.Success -> {
+                    binding.loading.visibility = View.GONE
+                    binding.recyclerView.adapter = Adapter(this, result.data)
+                }
+                is Resource.Failure -> {
+                    binding.loading.visibility = View.GONE
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Error al cargar datos: ${result.exception}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
             }
         })
     }
 
+    private fun setupViewModel() {
+        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+    }
 }
